@@ -5,5 +5,6 @@ func (app *App) SetupRoutes() {
 	app.router.HandleFunc("/register", app.HandleRegister()).Methods("POST")
 	app.router.HandleFunc("/login", app.HandleLogin()).Methods("POST")
 	app.router.HandleFunc("/submit/music", app.HandleMusicUpload()).Methods("POST")
+	app.router.HandleFunc("/play", app.HandleStreamMusic()).Methods("GET")
 
 }

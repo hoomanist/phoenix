@@ -46,3 +46,31 @@ func (app *App) HandleMusicUpload() http.HandlerFunc {
 		w.Write(res)
 	}
 }
+
+func (app *App) HandleStreamMusic() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Connection", "Keep-Alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Transfer-Encoding", "chunked")
+		w.Header().Set("Content-Type", "audio/mpeg")
+		filename := r.URL.Query()["music"][0]
+		address := "/home/vader/phoenix-music/" + filename + ".mp3"
+		f, err := os.Open(address)
+		if err != nil {
+			res, _ := json.Marshal(map[string]interface{}{
+				"error": "no such music found",
+			})
+			w.Write(res)
+			return
+		}
+		for {
+			b := make([]byte, 44100)
+			_, err = f.Read(b)
+			if err == io.EOF {
+				break
+			}
+			w.Write(b)
+		}
+	}
+}
