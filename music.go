@@ -54,6 +54,10 @@ func (app *App) HandleStreamMusic() http.HandlerFunc {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Transfer-Encoding", "chunked")
 		w.Header().Set("Content-Type", "audio/mpeg")
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			panic("expected http.ResponseWriter to be an http.Flusher")
+		}
 		filename := r.URL.Query()["music"][0]
 		address := "/home/vader/phoenix-music/" + filename + ".mp3"
 		f, err := os.Open(address)
@@ -71,6 +75,7 @@ func (app *App) HandleStreamMusic() http.HandlerFunc {
 				break
 			}
 			w.Write(b)
+			flusher.Flush()
 		}
 	}
 }
